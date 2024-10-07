@@ -7,7 +7,7 @@ info:
     name: Tech Services Team
     email: support@techservices.com
 servers:
-  - url: http://localhost:8000/api/v1
+  - url: http://localhost:8008/api/v1
 tags:
   - name: Services
     description: Operations related to tech services
@@ -23,10 +23,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Service'
+              $ref: '#/components/schemas/ServiceRequest'
       responses:
         '201':
-          description: Service created successfully
+          description: Service created successfully, returns the created service with its ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
         '400':
           description: Invalid input data
         '500':
@@ -51,11 +59,28 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Service'
+                  $ref: '#/components/schemas/ServiceResponse'
         '404':
           description: Service not found
         '500':
           description: Internal server error
+    delete:
+      operationId: deleteServices
+      description: Delete service by ID
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: query
+          description: ID of the service to retrieve (optional)
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Service not found
   /services/{id}:
     put:
       operationId: updateService
@@ -74,14 +99,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Service'
+              $ref: '#/components/schemas/ServiceRequest'
       responses:
         '200':
           description: Service updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Service'
+                $ref: '#/components/schemas/ServiceResponse'
         '400':
           description: Invalid input data
         '404':
@@ -90,12 +115,24 @@ paths:
           description: Internal server error
 components:
   schemas:
-    Service:
+    ServiceResponse:
       type: object
       properties:
         id:
           type: integer
           example: 1
+        name:
+          type: string
+          example: "Web Development"
+        description:
+          type: string
+          example: "Full-stack web development services"
+      required:
+        - id
+        - name
+    ServiceRequest:
+      type: object
+      properties:
         name:
           type: string
           example: "Web Development"
