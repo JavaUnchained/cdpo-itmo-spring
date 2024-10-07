@@ -1,0 +1,104 @@
+openapi: 3.0.0
+info:
+  title: Tech Services API
+  description: API for managing tech services.
+  version: 1.0.0
+  contact:
+    name: Tech Services Team
+    email: support@techservices.com
+servers:
+  - url: http://localhost:8000/api/v1
+tags:
+  - name: Services
+    description: Operations related to tech services
+paths:
+  /services:
+    post:
+      operationId: createService
+      description: Create a new service
+      tags:
+        - Services
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '201':
+          description: Service created successfully
+        '400':
+          description: Invalid input data
+        '500':
+          description: Internal server error
+    get:
+      operationId: getServices
+      description: Retrieve a list of all services or a specific service by ID
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: query
+          description: ID of the service to retrieve (optional)
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of services or a single service object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /services/{id}:
+    put:
+      operationId: updateService
+      description: Update an existing service by ID
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the service to update
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Service'
+      responses:
+        '200':
+          description: Service updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '400':
+          description: Invalid input data
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+components:
+  schemas:
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Web Development"
+        description:
+          type: string
+          example: "Full-stack web development services"
