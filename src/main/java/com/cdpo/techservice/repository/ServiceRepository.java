@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,15 +39,15 @@ public class ServiceRepository implements IServiceRepository{
     }
 
     @Override
-    public Optional<ServiceResponseDTO> updateService(long id, Map<String, Object> updates) {
+    public Optional<ServiceResponseDTO> updateService(long id, ServiceRequestDTO updates) {
         Optional<ServiceResponseDTO> existingServiceOpt = getServiceById(id);
         if (existingServiceOpt.isPresent()) {
             ServiceResponseDTO existingService = existingServiceOpt.get();
-            if (updates.containsKey(NAME)) {
-                existingService.setName((String) updates.get(NAME));
+            if (updates.getName() != null) {
+                existingService.setName(updates.getName());
             }
-            if (updates.containsKey(DESCRIPTION)) {
-                existingService.setDescription((String) updates.get(DESCRIPTION));
+            if (updates.getDescription() != null) {
+                existingService.setDescription(updates.getDescription());
             }
             return Optional.of(existingService);
         }

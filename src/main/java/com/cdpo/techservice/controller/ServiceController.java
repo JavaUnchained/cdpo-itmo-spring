@@ -50,7 +50,7 @@ public class ServiceController {
      * @return one or all services
      */
     @GetMapping
-    public ResponseEntity<List<@Valid ServiceResponseDTO>> getServices(@Positive @RequestParam(required = false) Long id) {
+    public ResponseEntity<List<ServiceResponseDTO>> getServices(@Positive @RequestParam(required = false) Long id) {
         if (id != null) {
             return serviceRepository.getServiceById(id)
                     .map(List::of)
@@ -64,12 +64,12 @@ public class ServiceController {
      * Update an existing service by ID (PUT)
      *
      * @param id id to update
-     * @param updatedService new data for service
+     * @param updates new data for service
      * @return changed service
      */
     @PutMapping("/{id}")
-    public ResponseEntity<@Valid ServiceResponseDTO> updateService(@Positive @PathVariable long id,
-                                                                   @NotNull @NotEmpty Map<String, Object> updates) {
+    public ResponseEntity<ServiceResponseDTO> updateService(@Positive @PathVariable long id,
+                                                                   @RequestBody ServiceRequestDTO updates) {
         return serviceRepository.updateService(id, updates)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
