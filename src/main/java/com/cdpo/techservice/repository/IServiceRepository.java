@@ -2,10 +2,12 @@ package com.cdpo.techservice.repository;
 
 import com.cdpo.techservice.dto.ServiceRequestDTO;
 import com.cdpo.techservice.dto.ServiceResponseDTO;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 
+@Validated
 public interface IServiceRepository {
 
     /**
@@ -14,7 +16,7 @@ public interface IServiceRepository {
      * @param service new service
      * @return id of saved servicee
      */
-    Long createService(ServiceRequestDTO service);
+    long createService(ServiceRequestDTO service);
 
     /**
      * Method to get all services

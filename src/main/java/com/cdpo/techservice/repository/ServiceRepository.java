@@ -2,6 +2,7 @@ package com.cdpo.techservice.repository;
 
 import com.cdpo.techservice.dto.ServiceRequestDTO;
 import com.cdpo.techservice.dto.ServiceResponseDTO;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Primary
 @Repository
 public class ServiceRepository implements IServiceRepository{
 
@@ -16,7 +18,7 @@ public class ServiceRepository implements IServiceRepository{
     private final AtomicLong idGenerator = new AtomicLong();
 
     @Override
-    public Long createService(ServiceRequestDTO service) {
+    public long createService(ServiceRequestDTO service) {
         long id = idGenerator.incrementAndGet();
         services.add(new ServiceResponseDTO(id, service));
         return id;
