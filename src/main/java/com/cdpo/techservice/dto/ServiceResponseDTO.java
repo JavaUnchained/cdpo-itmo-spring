@@ -1,6 +1,5 @@
 package com.cdpo.techservice.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
