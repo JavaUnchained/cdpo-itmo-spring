@@ -5,6 +5,7 @@ import com.cdpo.techservice.dto.ServiceResponseDTO;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Validated
@@ -37,10 +38,10 @@ public interface IServiceRepository {
      * Method to update an existing service
      *
      * @param id             id existed service
-     * @param updatedService new data to update
+     * @param updates new data to update
      * @return updated service
      */
-    Optional<ServiceResponseDTO> updateService(long id, ServiceRequestDTO updatedService);
+    Optional<ServiceResponseDTO> updateService(long id, Map<String, Object> updates);
 
     /**
      * Method to delete a service by ID
