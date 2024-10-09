@@ -5,22 +5,21 @@ import com.cdpo.techservice.dto.ServiceResponseDTO;
 import com.cdpo.techservice.service.IServiceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 
-@Validated
-@RestController
 @RequestMapping("/api/v1/services")
-@RequiredArgsConstructor
-public class ServiceController {
+public class ServiceController extends BaseController<IServiceService>{
 
-    private final IServiceService serviceRepository;
+    @Autowired
+    public ServiceController(IServiceService serviceService) {
+        super(serviceService);
+    }
 
     /**
      * Create a new service (POST)
@@ -30,10 +29,8 @@ public class ServiceController {
      */
     @PostMapping
     public ResponseEntity<Long> createService(@RequestBody @Valid ServiceRequestDTO service) {
-        if (service.description() != null && service.description().isBlank()) {
-            return ResponseEntity.badRequest().build();
-        }
-        return new ResponseEntity<>(serviceRepository.createService(service), HttpStatus.CREATED);
+        long createdId = iService.createService(service);
+        return createdId == -1 ? ResponseEntity.badRequest().build() : new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     /**
@@ -44,13 +41,11 @@ public class ServiceController {
      */
     @GetMapping
     public ResponseEntity<List<ServiceResponseDTO>> getServices(@Positive @RequestParam(required = false) Long id) {
-        if (id != null) {
-            return serviceRepository.getServiceById(id)
-                    .map(List::of)
-                    .map(ResponseEntity::ok)
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        }
-        return ResponseEntity.ok(serviceRepository.getAllServices());
+        return id == null ?
+                ResponseEntity.ok(iService.getAllServices()) :
+                iService.getServiceByIdAsList(id)
+                        .map(ResponseEntity::ok)
+                        .orElseGet(ServiceController::buildNotFound);
     }
 
     /**
@@ -63,9 +58,9 @@ public class ServiceController {
     @PutMapping("/{id}")
     public ResponseEntity<ServiceResponseDTO> updateService(@Positive @PathVariable long id,
                                                                    @RequestBody ServiceRequestDTO updates) {
-        return serviceRepository.updateService(id, updates)
+        return iService.updateService(id, updates)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(ServiceController::buildNotFound);
     }
 
 
@@ -76,7 +71,8 @@ public class ServiceController {
      */
     @DeleteMapping
     public ResponseEntity<Void> deleteService(@Positive @RequestParam Long id) {
-        return serviceRepository.deleteService(id) ?
-                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        return iService.deleteService(id) ?
+                ResponseEntity.noContent().build() : buildNotFound();
     }
+
 }

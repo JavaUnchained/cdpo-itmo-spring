@@ -17,10 +17,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceService implements IServiceService {
     private final IServiceRepository serviceRepository;
+
     @Override
     public long createService(ServiceRequestDTO service) {
+        if (service.description() != null && service.description().isBlank()) {
+            return -1;
+        }
         return serviceRepository.createService(service.name(), service.description());
     }
+
     @Override
     public List<ServiceResponseDTO> getAllServices() {
         return serviceRepository.getAllServices().stream()

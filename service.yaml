@@ -113,6 +113,117 @@ paths:
           description: Service not found
         '500':
           description: Internal server error
+  /service/done:
+    get:
+      operationId: getProvidedService
+      description: Retrieve a list of provided service.
+      tags:
+        - Services
+      responses:
+        '200':
+          description: A list of all bookings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /service/booking:
+    post:
+      operationId: createBooking
+      description: Create a booking for a service.
+      tags:
+        - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+      responses:
+        '201':
+          description: Booking created successfully, returns the created booking.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+        '400':
+          description: Invalid input data
+        '500':
+          description: Internal server error
+    delete:
+      operationId: cancelBooking
+      description: Cancel an existing booking by ID.
+      tags:
+        - Bookings
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the booking to cancel.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Booking canceled successfully (no content).
+        '404':
+          description: Booking not found.
+    get :
+      operationId : getBookings
+      description : Retrieve a list of all bookings.
+      tags :
+        - Bookings
+      responses :
+        '200' :
+          description : A list of all bookings.
+          content :
+            application/json :
+              schema :
+                type : array
+                items :
+                  $ref : '#/components/schemas/Booking'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /service/booking/{id}:
+    put:
+      operationId: changeBookingAppointmentTime
+      description : change booking appointment time.
+      tags :
+        - Bookings
+      parameters :
+        - name : id
+          in : path
+          required : true
+          description : ID of the booking to edit.
+          schema :
+            type : integer
+      requestBody :
+        required : true
+        content :
+          application/json :
+            schema :
+              $ref : '#/components/schemas/BookingUpdate'
+      responses :
+        '200' :
+          description : Booking updated successfully.
+          content :
+            application/json :
+              schema :
+                $ref : '#/components/schemas/BookingResponse'
+        '404' :
+          description : Booking not found.
+        '400' :
+          description : Invalid input data.
 components:
   schemas:
     ServiceResponse:
@@ -139,3 +250,41 @@ components:
         description:
           type: string
           example: "Full-stack web development services"
+    BookingRequest :
+      type : object
+      properties :
+        service_id :
+          type : integer
+          example : 1
+        appointment_time :
+          type : string
+          format : date-time
+          example : "2024-10-09T10:00Z"
+      required:
+        - service_id
+        - appointment_time
+    BookingResponse :
+      type : object
+      properties :
+        id :
+          type : integer
+          example : 1
+        service :
+          $ref : '#/components/schemas/ServiceResponse'
+        appointment_time :
+          type : string
+          format : date-time
+          example : "2024-10-09T10:00Z"
+      required:
+        - id
+        - service
+        - appointment_time
+    BookingUpdate :
+      type : object
+      properties :
+        appointment_time :
+          type : string
+          format : date-time
+          example : "2024-10-09T11.00Z"
+      required:
+        - appointment_time

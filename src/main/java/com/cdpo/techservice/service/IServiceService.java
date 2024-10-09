@@ -33,6 +33,10 @@ public interface IServiceService {
      */
     Optional<ServiceResponseDTO> getServiceById(long id);
 
+    default Optional<List<ServiceResponseDTO>> getServiceByIdAsList(long id) {
+        return getServiceById(id).map(List::of);
+    }
+
     /**
      * Method to update an existing service
      *
