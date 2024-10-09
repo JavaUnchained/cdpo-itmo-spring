@@ -2,11 +2,10 @@ package com.cdpo.techservice.controller;
 
 import com.cdpo.techservice.dto.ServiceRequestDTO;
 import com.cdpo.techservice.dto.ServiceResponseDTO;
-import com.cdpo.techservice.repository.IServiceRepository;
-import com.cdpo.techservice.repository.ServiceRepository;
+import com.cdpo.techservice.service.IServiceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -18,13 +17,10 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/api/v1/services")
+@RequiredArgsConstructor
 public class ServiceController {
-    private final IServiceRepository serviceRepository;
 
-    @Autowired
-    public ServiceController(ServiceRepository serviceRepository) {
-        this.serviceRepository = serviceRepository;
-    }
+    private final IServiceService serviceRepository;
 
     /**
      * Create a new service (POST)
@@ -33,8 +29,8 @@ public class ServiceController {
      * @return id of created service
      */
     @PostMapping
-    public ResponseEntity<Long> createService(@Valid @RequestBody ServiceRequestDTO service) {
-        if (service.getName() == null || service.getDescription() == null) {
+    public ResponseEntity<Long> createService(@RequestBody @Valid ServiceRequestDTO service) {
+        if (service.description() != null && service.description().isBlank()) {
             return ResponseEntity.badRequest().build();
         }
         return new ResponseEntity<>(serviceRepository.createService(service), HttpStatus.CREATED);

@@ -1,11 +1,8 @@
 package com.cdpo.techservice.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
-@Getter
-@Setter
-public class ServiceRequestDTO {
-    private String name;
-    private String description;
+public record ServiceRequestDTO(@NotNull @NotBlank String name, String description) {
+
 }
