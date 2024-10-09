@@ -7,11 +7,8 @@ import java.util.List;
 public interface IServiceRepository {
     /**
      * Method to create a new service
-     *
-     * @param service new service
-     * @return id of saved servicee
      */
-    long createService(Service service);
+    long createService(String name, String description);
 
     /**
      * Method to get all services
@@ -31,11 +28,9 @@ public interface IServiceRepository {
     /**
      * Method to update an existing service
      *
-     * @param id             id existed service
-     * @param updates new data to update
      * @return updated service
      */
-    Service updateServiceById(long id, Service updates);
+    Service updateServiceById(long id, String name, String description);
 
     /**
      * Method to delete a service by ID
@@ -44,5 +39,4 @@ public interface IServiceRepository {
      * @return delete status
      */
     boolean deleteServiceById(long id);
-
 }

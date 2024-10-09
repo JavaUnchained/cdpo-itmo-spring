@@ -15,9 +15,9 @@ public class ServiceSimpleRepository implements IServiceRepository{
     private final AtomicLong idGenerator = new AtomicLong();
 
     @Override
-    public long createService(Service service) {
+    public long createService(String name, String description){
         long id = idGenerator.incrementAndGet();
-        service.setId(id);
+        Service service = new Service(id, name, description);
         services.add(service);
         return id;
     }
@@ -33,14 +33,14 @@ public class ServiceSimpleRepository implements IServiceRepository{
     }
 
     @Override
-    public Service updateServiceById(long id, Service updates) {
+    public Service updateServiceById(long id, String name, String description) {
         Service serviceById = getServiceById(id);
         if (serviceById != null) {
-            if (updates.getName() != null) {
-                serviceById.setName(updates.getName());
+            if (name != null) {
+                serviceById.setName(name);
             }
-            if (updates.getDescription() != null) {
-                serviceById.setDescription(updates.getDescription());
+            if (description != null) {
+                serviceById.setDescription(description);
             }
         }
         return serviceById;

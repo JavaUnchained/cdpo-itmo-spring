@@ -19,7 +19,7 @@ public class ServiceService implements IServiceService {
     private final IServiceRepository serviceRepository;
     @Override
     public long createService(ServiceRequestDTO service) {
-        return serviceRepository.createService(requestDtoToService(service));
+        return serviceRepository.createService(service.name(), service.description());
     }
     @Override
     public List<ServiceResponseDTO> getAllServices() {
@@ -36,7 +36,7 @@ public class ServiceService implements IServiceService {
     @Override
     public Optional<ServiceResponseDTO> updateService(long id, ServiceRequestDTO updates) {
         return Optional.ofNullable(
-                serviceRepository.updateServiceById(id, requestDtoToService(updates))
+                serviceRepository.updateServiceById(id, updates.name(), updates.description())
         ).map(ServiceService::serviceToResponseDTO);
     }
 
@@ -47,9 +47,5 @@ public class ServiceService implements IServiceService {
 
     private static ServiceResponseDTO serviceToResponseDTO(Service s) {
         return new ServiceResponseDTO(s.getId(), s.getName(), s.getDescription());
-    }
-
-    private static Service requestDtoToService(ServiceRequestDTO service) {
-        return new Service(service.name(), service.description());
     }
 }
