@@ -11,6 +11,8 @@ servers:
 tags:
   - name: Services
     description: Operations related to tech services
+  - name: Bookings
+    description: Operations related to tech services booking
 paths:
   /services:
     post:
@@ -127,7 +129,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Booking'
+                  $ref: '#/components/schemas/BookingResponse'
         '404':
           description: Service not found
         '500':
@@ -143,7 +145,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Booking'
+              $ref: '#/components/schemas/BookingRequest'
       responses:
         '201':
           description: Booking created successfully, returns the created booking.
@@ -166,7 +168,7 @@ paths:
         - Bookings
       parameters:
         - name: id
-          in: path
+          in: query
           required: true
           description: ID of the booking to cancel.
           schema:
@@ -189,7 +191,7 @@ paths:
               schema :
                 type : array
                 items :
-                  $ref : '#/components/schemas/Booking'
+                  $ref : '#/components/schemas/BookingResponse'
         '404':
           description: Service not found
         '500':
@@ -259,7 +261,6 @@ components:
         appointment_time :
           type : string
           format : date-time
-          example : "2024-10-09T10:00Z"
       required:
         - service_id
         - appointment_time
@@ -274,7 +275,6 @@ components:
         appointment_time :
           type : string
           format : date-time
-          example : "2024-10-09T10:00Z"
       required:
         - id
         - service
@@ -285,6 +285,5 @@ components:
         appointment_time :
           type : string
           format : date-time
-          example : "2024-10-09T11.00Z"
       required:
         - appointment_time
