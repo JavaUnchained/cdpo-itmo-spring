@@ -6,14 +6,13 @@ import com.cdpo.techservice.model.Service;
 import com.cdpo.techservice.repository.IServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Primary
-@Repository
+@org.springframework.stereotype.Service
 @RequiredArgsConstructor
 public class ServiceService implements IServiceService {
     private final IServiceRepository serviceRepository;
@@ -50,7 +49,7 @@ public class ServiceService implements IServiceService {
         return serviceRepository.deleteServiceById(id);
     }
 
-    private static ServiceResponseDTO serviceToResponseDTO(Service s) {
-        return new ServiceResponseDTO(s.getId(), s.getName(), s.getDescription());
+    private static ServiceResponseDTO serviceToResponseDTO(Service service) {
+        return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription());
     }
 }

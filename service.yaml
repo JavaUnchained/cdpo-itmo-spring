@@ -115,7 +115,7 @@ paths:
           description: Service not found
         '500':
           description: Internal server error
-  /service/done:
+  /services/done:
     get:
       operationId: getProvidedService
       description: Retrieve a list of provided service.
@@ -180,9 +180,16 @@ paths:
           description: Booking not found.
     get :
       operationId : getBookings
-      description : Retrieve a list of all bookings.
+      description : Retrieve a list of all bookings or booking by id
       tags :
         - Bookings
+      parameters:
+        - name: id
+          in: query
+          description: ID of the service to retrieve (optional)
+          required: false
+          schema:
+            type: integer
       responses :
         '200' :
           description : A list of all bookings.

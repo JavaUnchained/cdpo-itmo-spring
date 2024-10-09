@@ -1,7 +1,9 @@
 package com.cdpo.techservice.repository;
 
 import com.cdpo.techservice.model.Service;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Primary
+@Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 @Repository
 public class ServiceSimpleRepository implements IServiceRepository{
     private final List<Service> services = new ArrayList<>();
@@ -17,8 +20,7 @@ public class ServiceSimpleRepository implements IServiceRepository{
     @Override
     public long createService(String name, String description){
         long id = idGenerator.incrementAndGet();
-        Service service = new Service(id, name, description);
-        services.add(service);
+        services.add(new Service(id, name, description));
         return id;
     }
 
