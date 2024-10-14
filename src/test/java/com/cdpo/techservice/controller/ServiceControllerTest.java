@@ -2,11 +2,8 @@ package com.cdpo.techservice.controller;
 
 import com.cdpo.techservice.dto.ServiceRequestDTO;
 import com.cdpo.techservice.dto.ServiceResponseDTO;
-import com.cdpo.techservice.repository.ServiceBookingSimpleRepository;
 import com.cdpo.techservice.repository.ServiceSimpleRepository;
-import com.cdpo.techservice.service.IServiceBookingService;
 import com.cdpo.techservice.service.IServiceService;
-import com.cdpo.techservice.service.ServiceBookingService;
 import com.cdpo.techservice.service.ServiceService;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -30,7 +27,7 @@ class ServiceControllerTest {
         ServiceSimpleRepository serviceSimpleRepository = new ServiceSimpleRepository();
         ServiceService serviceRepository = new ServiceService(serviceSimpleRepository);
         ServiceController serviceController = new ServiceController(serviceRepository);
-        ServiceRequestDTO serviceRequest = new ServiceRequestDTO("Test Service", "Test Description", 60*60*10, 120);
+        ServiceRequestDTO serviceRequest = new ServiceRequestDTO("Test Service", "Test Description", (long) (60*60*10), 120.0);
 
         ResponseEntity<Long> response = serviceController.createService(serviceRequest);
 
@@ -46,8 +43,8 @@ class ServiceControllerTest {
         ServiceController serviceController = new ServiceController(mockServiceService);
 
         List<ServiceResponseDTO> mockServiceList = new ArrayList<>();
-        mockServiceList.add(new ServiceResponseDTO(1L, new ServiceRequestDTO("Service 1", "Description 1", 10, 100)));
-        mockServiceList.add(new ServiceResponseDTO(2L, new ServiceRequestDTO("Service 2", "Description 2", 101, 200)));
+        mockServiceList.add(new ServiceResponseDTO(1L, new ServiceRequestDTO("Service 1", "Description 1", 10L, 100.0)));
+        mockServiceList.add(new ServiceResponseDTO(2L, new ServiceRequestDTO("Service 2", "Description 2", (long) 101L, 200.0)));
 
         when(mockServiceService.getAllServices()).thenReturn(mockServiceList);
 
@@ -64,7 +61,7 @@ class ServiceControllerTest {
         ServiceController serviceController = new ServiceController(mockServiceRepository);
 
         long id = 1L;
-        ServiceRequestDTO updates = new ServiceRequestDTO("Updated Service", "Updated Description", 1000, 200);
+        ServiceRequestDTO updates = new ServiceRequestDTO("Updated Service", "Updated Description", 1000L, 200.0);
 
         when(mockServiceRepository.updateService(id, updates)).thenReturn(Optional.of(new ServiceResponseDTO(id, updates)));
 
@@ -111,7 +108,7 @@ class ServiceControllerTest {
         ServiceController serviceController = new ServiceController(serviceRepository);
 
         long nonExistentId = 9999L;
-        ServiceRequestDTO updates = new ServiceRequestDTO("Updated Name", "Updated Description", 100000, 123);
+        ServiceRequestDTO updates = new ServiceRequestDTO("Updated Name", "Updated Description", 100000L, 123.0);
         when(serviceRepository.updateService(nonExistentId, updates)).thenReturn(Optional.empty());
         ResponseEntity<ServiceResponseDTO> response = serviceController.updateService(nonExistentId, updates);
 
