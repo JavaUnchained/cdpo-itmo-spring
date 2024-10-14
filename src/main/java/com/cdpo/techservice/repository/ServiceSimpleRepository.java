@@ -41,7 +41,7 @@ public class ServiceSimpleRepository implements IServiceRepository{
     }
 
     @Override
-    public Service updateServiceById(long id, String name, String description) {
+    public Service updateServiceById(long id, String name, String description, Long duration, Double price) {
         Service serviceById = getServiceById(id);
         if (serviceById != null) {
             if (name != null) {
@@ -49,6 +49,12 @@ public class ServiceSimpleRepository implements IServiceRepository{
             }
             if (description != null) {
                 serviceById.setDescription(description);
+            }
+            if (duration != null) {
+                serviceById.setDuration(duration);
+            }
+            if (price != null) {
+                serviceById.setPrice(price);
             }
         }
         return serviceById;

@@ -115,12 +115,12 @@ paths:
           description: Service not found
         '500':
           description: Internal server error
-  /services/done:
+  /services/booking/done:
     get:
       operationId: getProvidedService
       description: Retrieve a list of provided service.
       tags:
-        - Services
+        - Bookings
       responses:
         '200':
           description: A list of all bookings.
@@ -134,7 +134,7 @@ paths:
           description: Service not found
         '500':
           description: Internal server error
-  /service/booking:
+  /services/booking:
     post:
       operationId: createBooking
       description: Create a booking for a service.
@@ -179,17 +179,18 @@ paths:
         '404':
           description: Booking not found.
     get :
-      operationId : getBookings
+      operationId : getBookingsByTime
       description : Retrieve a list of all bookings or booking by id
       tags :
         - Bookings
       parameters:
-        - name: id
+        - name: target_time
           in: query
           description: ID of the service to retrieve (optional)
           required: false
           schema:
-            type: integer
+            type : string
+            format : date-time
       responses :
         '200' :
           description : A list of all bookings.
@@ -203,7 +204,49 @@ paths:
           description: Service not found
         '500':
           description: Internal server error
-  /service/booking/{id}:
+  /services/booking/all:
+    get :
+      operationId : getBookings
+      description : Retrieve a list of all bookings or booking by id
+      tags :
+        - Bookings
+      responses :
+        '200' :
+          description : A list of all bookings.
+          content :
+            application/json :
+              schema :
+                type : array
+                items :
+                  $ref : '#/components/schemas/BookingResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /services/booking/{id}:
+    get :
+      operationId : getBooking
+      description : Retrieve a list of all bookings or booking by id
+      tags :
+        - Bookings
+      parameters:
+        - name: id
+          in: path
+          description: ID of the service to retrieve (optional)
+          required: true
+          schema:
+            type: integer
+      responses :
+        '200' :
+          description : A list of all bookings.
+          content :
+            application/json :
+              schema :
+                $ref : '#/components/schemas/BookingResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
     put:
       operationId: changeBookingAppointmentTime
       description : change booking appointment time.
@@ -233,6 +276,36 @@ paths:
           description : Booking not found.
         '400' :
           description : Invalid input data.
+  /services/booking/{id}/discount:
+    put:
+      operationId: changeDiscount
+      description : change booking appointment time.
+      tags :
+        - Bookings
+      parameters :
+        - name : id
+          in : path
+          required : true
+          description : ID of the booking to edit.
+          schema :
+            type : integer
+      requestBody :
+        required : true
+        content :
+          application/json :
+            schema :
+              $ref : '#/components/schemas/BookingUpdateDiscount'
+      responses :
+        '200' :
+          description : Booking updated successfully.
+          content :
+            application/json :
+              schema :
+                $ref : '#/components/schemas/BookingResponse'
+        '404' :
+          description : Booking not found.
+        '400' :
+          description : Invalid input data.
 components:
   schemas:
     ServiceResponse:
@@ -247,9 +320,15 @@ components:
         description:
           type: string
           example: "Full-stack web development services"
+        duration:
+          type: integer
+        price:
+          type: number
       required:
         - id
         - name
+        - duration
+        - price
     ServiceRequest:
       type: object
       properties:
@@ -259,12 +338,18 @@ components:
         description:
           type: string
           example: "Full-stack web development services"
+        duration:
+          type: integer
+        price:
+          type: number
     BookingRequest :
       type : object
       properties :
-        service_id :
-          type : integer
-          example : 1
+        service_ids :
+          type: array
+          items:
+            type : integer
+            example : 1
         appointment_time :
           type : string
           format : date-time
@@ -278,10 +363,16 @@ components:
           type : integer
           example : 1
         service :
-          $ref : '#/components/schemas/ServiceResponse'
+          type: array
+          items:
+            $ref : '#/components/schemas/ServiceResponse'
         appointment_time :
           type : string
           format : date-time
+        discount_percent:
+          type: number
+        state:
+          type: string
       required:
         - id
         - service
@@ -294,3 +385,10 @@ components:
           format : date-time
       required:
         - appointment_time
+    BookingUpdateDiscount :
+      type : object
+      properties :
+        discount_percent:
+          type: number
+      required:
+        - discount_percent

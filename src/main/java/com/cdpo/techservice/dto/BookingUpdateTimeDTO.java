@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record BookingUpdateDTO (
+public record BookingUpdateTimeDTO(
         @NotNull
         @Future
         LocalDateTime appointmentTime

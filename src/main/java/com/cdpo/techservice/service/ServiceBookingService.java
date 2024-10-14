@@ -72,7 +72,7 @@ public class ServiceBookingService implements IServiceBookingService {
     @Override
     public Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDiscountDTO updateDTO) {
         return Optional.ofNullable(
-                        bookingRepository.updateServiceDicountById(id, updateDTO.discount()))
+                        bookingRepository.updateServiceDicountById(id, updateDTO.discountPercent()))
                 .map(ServiceBookingService::bookingToResponseDTO);
 
     }
@@ -83,6 +83,9 @@ public class ServiceBookingService implements IServiceBookingService {
         if(allBookings.isEmpty()) return allBookings;
         return allBookings.stream()
                 .filter(b -> b.appointmentTime().isBefore(LocalDateTime.now()))
+                /**
+                 * Сейчас не предусмотрена смены статуса на DONE, поэтому сейчас наглядней по времени
+                 */
                 .collect(Collectors.toList());
     }
 
