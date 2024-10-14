@@ -38,7 +38,7 @@ public interface IServiceRepository {
      *
      * @return updated service
      */
-    Service updateServiceById(long id, String name, String description);
+    Service updateServiceById(long id, String name, String description, Long duration, Double price);
 
     /**
      * Method to delete a service by ID
