@@ -1,9 +1,6 @@
 package com.cdpo.techservice.service;
 
-import com.cdpo.techservice.dto.BookingRequestDTO;
-import com.cdpo.techservice.dto.BookingResponseDTO;
-import com.cdpo.techservice.dto.BookingUpdateDTO;
-import com.cdpo.techservice.dto.ServiceResponseDTO;
+import com.cdpo.techservice.dto.*;
 import com.cdpo.techservice.model.Booking;
 import com.cdpo.techservice.model.Service;
 import com.cdpo.techservice.repository.IServiceBookingRepository;
@@ -11,9 +8,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Primary
 @org.springframework.stereotype.Service
@@ -24,7 +23,7 @@ public class ServiceBookingService implements IServiceBookingService {
     @Override
     public long createBooking(BookingRequestDTO requestBooking) {
         return bookingRepository
-                .createBooking(requestBooking.serviceId(), requestBooking.appointmentTime());
+                .createBooking(requestBooking.serviceIds(), requestBooking.appointmentTime());
     }
 
     @Override
@@ -34,22 +33,48 @@ public class ServiceBookingService implements IServiceBookingService {
     }
 
     @Override
+    public List<BookingResponseDTO> getAllFilteredBy(BookingStateDTO stateDTO) {
+        Stream<Booking> bookingStream = bookingRepository
+                .getAllBooking().stream().filter(b -> b.getState().name().equals(stateDTO.name()));
+        return composeToDto(bookingStream);
+    }
+
+    @Override
+    public List<BookingResponseDTO> getAllFilteredBy(LocalDateTime time) {
+        Stream<Booking> bookingStream = bookingRepository
+                .getAllBooking().stream().filter(b -> b.getAppointmentTime().isEqual(time));
+        return composeToDto(bookingStream);
+    }
+
+    @Override
     public List<BookingResponseDTO> getAllBookings() {
-        return bookingRepository.getAllBooking().stream()
-                .map(ServiceBookingService::bookingToResponseDTO).collect(Collectors.toList());
+        return composeToDto(bookingRepository.getAllBooking().stream());
+    }
 
+    private List<BookingResponseDTO> composeToDto(Stream<Booking> bookingStream) {
+        return bookingStream.map(ServiceBookingService::bookingToResponseDTO)
+                .sorted(Comparator.comparing(BookingResponseDTO::appointmentTime))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public boolean deleteBooking(Long id) {
-        return bookingRepository.deleteBookingById(id);
+    public boolean cancelBooking(Long id) {
+        return bookingRepository.setCanceledStatusById(id);
     }
 
     @Override
-    public Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDTO updateDTO) {
+    public Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateTimeDTO updateDTO) {
         return Optional.ofNullable(
-                bookingRepository.updateServiceById(id, updateDTO.appointmentTime()))
+                bookingRepository.updateServiceTimeById(id, updateDTO.appointmentTime()))
                 .map(ServiceBookingService::bookingToResponseDTO);
+    }
+
+    @Override
+    public Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDiscountDTO updateDTO) {
+        return Optional.ofNullable(
+                        bookingRepository.updateServiceDicountById(id, updateDTO.discount()))
+                .map(ServiceBookingService::bookingToResponseDTO);
+
     }
 
     @Override
@@ -62,11 +87,21 @@ public class ServiceBookingService implements IServiceBookingService {
     }
 
     private static BookingResponseDTO bookingToResponseDTO(Booking booking) {
-        Service service = booking.getService();
+        List<Service> service = booking.getServices();
         return new BookingResponseDTO(
                 booking.getId(),
-                new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription()),
-                booking.getAppointmentTime()
+                service.stream()
+                        .map(s ->
+                                new ServiceResponseDTO(
+                                        s.getId(),
+                                        s.getName(),
+                                        s.getDescription(),
+                                        s.getDuration(),
+                                        s.getPrice())
+                        ).collect(Collectors.toList()),
+                booking.getAppointmentTime(),
+                booking.getDiscountPercent(),
+                BookingStateDTO.valueOf(booking.getState().name())
         );
     }
 }
