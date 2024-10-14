@@ -44,7 +44,12 @@ public class ServiceService implements IServiceService {
     @Override
     public Optional<ServiceResponseDTO> updateService(long id, ServiceRequestDTO updates) {
         return Optional.ofNullable(
-                serviceRepository.updateServiceById(id, updates.name(), updates.description())
+                serviceRepository.updateServiceById(
+                        id,
+                        updates.name(),
+                        updates.description(),
+                        updates.duration(),
+                        updates.price())
         ).map(ServiceService::serviceToResponseDTO);
     }
 

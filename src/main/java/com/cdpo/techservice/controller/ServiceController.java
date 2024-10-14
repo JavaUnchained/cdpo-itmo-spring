@@ -5,7 +5,7 @@ import com.cdpo.techservice.dto.ServiceResponseDTO;
 import com.cdpo.techservice.service.IServiceService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,12 +17,9 @@ import java.util.List;
 @Validated
 @RestController
 @RequestMapping("/api/v1/services")
-public class ServiceController extends BaseController<IServiceService>{
-
-    @Autowired
-    public ServiceController(IServiceService serviceService) {
-        super(serviceService);
-    }
+@AllArgsConstructor
+public class ServiceController {
+    private final IServiceService iService;
 
     @PostMapping
     public ResponseEntity<Long> createService(@RequestBody @Valid ServiceRequestDTO service) {
@@ -36,7 +33,7 @@ public class ServiceController extends BaseController<IServiceService>{
                 ResponseEntity.ok(iService.getAllServices()) :
                 iService.getServiceByIdAsList(id)
                         .map(ResponseEntity::ok)
-                        .orElseGet(ServiceController::buildNotFound);
+                        .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
@@ -44,13 +41,14 @@ public class ServiceController extends BaseController<IServiceService>{
                                                                    @RequestBody ServiceRequestDTO updates) {
         return iService.updateService(id, updates)
                 .map(ResponseEntity::ok)
-                .orElseGet(ServiceController::buildNotFound);
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 
     @DeleteMapping
     public ResponseEntity<Void> deleteService(@Positive @RequestParam Long id) {
         return iService.deleteService(id) ?
-                ResponseEntity.noContent().build() : buildNotFound();
+                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
+
 }
