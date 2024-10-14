@@ -1,9 +1,8 @@
 package com.cdpo.techservice.service;
 
-import com.cdpo.techservice.dto.BookingRequestDTO;
-import com.cdpo.techservice.dto.BookingResponseDTO;
-import com.cdpo.techservice.dto.BookingUpdateDTO;
+import com.cdpo.techservice.dto.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,15 +12,15 @@ public interface IServiceBookingService {
 
     Optional<BookingResponseDTO> getBookingById(Long id);
 
-    default Optional<List<BookingResponseDTO>> getBookingByIdAsList(long id) {
-        return getBookingById(id).map(List::of);
-    }
+    List<BookingResponseDTO> getAllFilteredBy(BookingStateDTO stateDTO);
+    List<BookingResponseDTO> getAllFilteredBy(LocalDateTime time);
 
     List<BookingResponseDTO> getAllBookings();
 
-    boolean deleteBooking(Long id);
+    boolean cancelBooking(Long id);
 
-    Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDTO updateDTO);
+    Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateTimeDTO updateDTO);
+    Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDiscountDTO updateDTO);
 
     List<BookingResponseDTO> getAllProvidedBookings();
 }

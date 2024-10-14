@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 @Primary
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -18,9 +19,9 @@ public class ServiceSimpleRepository implements IServiceRepository{
     private final AtomicLong idGenerator = new AtomicLong();
 
     @Override
-    public long createService(String name, String description){
+    public long createService(String name, String description, long duration, double price){
         long id = idGenerator.incrementAndGet();
-        services.add(new Service(id, name, description));
+        services.add(new Service(id, name, description, duration, price));
         return id;
     }
 
@@ -32,6 +33,11 @@ public class ServiceSimpleRepository implements IServiceRepository{
     @Override
     public Service getServiceById(long id) {
         return services.stream().filter(s -> s.getId() == id).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<Service> getServicesByIds(List<Long> ids) {
+        return services.stream().filter(s -> ids.contains(s.getId())).collect(Collectors.toList());
     }
 
     @Override

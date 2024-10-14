@@ -6,11 +6,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IServiceBookingRepository {
-    long createBooking(long serviceId, LocalDateTime appointmentTime);
+    long createBooking(List<Long> serviceId, LocalDateTime appointmentTime);
 
-    boolean deleteBookingById(Long id);
+    boolean setCanceledStatusById(Long id);
 
-    Booking updateServiceById(Long id, LocalDateTime appointmentTime);
+    Booking updateServiceTimeById(Long id, LocalDateTime appointmentTime);
+
+    Booking updateServiceDicountById(Long id, double discount);
 
     List<Booking> getAllBooking();
 

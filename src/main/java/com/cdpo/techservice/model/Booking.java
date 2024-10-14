@@ -5,14 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class Booking {
     private long id;
-    private Service service;
+    private List<Service> services;
     private LocalDateTime appointmentTime;
+    private double discountPercent;
+    private BookingState state;
 }
 
 

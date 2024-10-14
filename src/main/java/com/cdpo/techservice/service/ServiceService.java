@@ -22,7 +22,11 @@ public class ServiceService implements IServiceService {
         if (service.description() != null && service.description().isBlank()) {
             return -1;
         }
-        return serviceRepository.createService(service.name(), service.description());
+        return serviceRepository.createService(
+                service.name(),
+                service.description(),
+                service.duration(),
+                service.price());
     }
 
     @Override
@@ -50,6 +54,11 @@ public class ServiceService implements IServiceService {
     }
 
     private static ServiceResponseDTO serviceToResponseDTO(Service service) {
-        return new ServiceResponseDTO(service.getId(), service.getName(), service.getDescription());
+        return new ServiceResponseDTO(
+                service.getId(),
+                service.getName(),
+                service.getDescription(),
+                service.getDuration(),
+                service.getPrice());
     }
 }

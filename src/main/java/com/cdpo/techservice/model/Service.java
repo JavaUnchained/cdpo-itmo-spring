@@ -11,4 +11,6 @@ public class Service {
     private long id;
     private String name;
     private String description;
+    private long duration;
+    private double price;
 }

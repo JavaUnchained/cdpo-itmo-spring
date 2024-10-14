@@ -8,7 +8,7 @@ public interface IServiceRepository {
     /**
      * Method to create a new service
      */
-    long createService(String name, String description);
+    long createService(String name, String description, long duration, double price);
 
     /**
      * Method to get all services
@@ -24,6 +24,14 @@ public interface IServiceRepository {
      * @return target service
      */
     Service getServiceById(long id);
+
+    /**
+     * Method to get a services by IDs
+     *
+     * @param ids ids of target services
+     * @return target services
+     */
+    List<Service> getServicesByIds(List<Long> ids);
 
     /**
      * Method to update an existing service
