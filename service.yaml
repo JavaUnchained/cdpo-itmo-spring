@@ -306,6 +306,38 @@ paths:
           description : Booking not found.
         '400' :
           description : Invalid input data.
+  /services/booking/revenue:
+    get :
+      operationId : getBookingRevenue
+      description : Retrieve a list of all bookings or booking by id
+      tags :
+        - Bookings
+      parameters:
+        - name: from
+          in: query
+          description: value from
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: value to
+          required: false
+          schema:
+            type: string
+            format: date
+      responses :
+        '200' :
+          description : A list of revenues
+          content :
+            application/json :
+              schema :
+                type : array
+                items :
+                  $ref : '#/components/schemas/BookingRevenue'
+        '500':
+          description: Internal server error
 components:
   schemas:
     ServiceResponse:
@@ -392,3 +424,14 @@ components:
           type: number
       required:
         - discount_percent
+    BookingRevenue :
+      type : object
+      properties:
+        revenue_date:
+          type: string
+          format: date-time
+        revenue:
+          type: number
+      required:
+        - revenue_date
+        - revenue
