@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1" author="your_name">
+        <createTable tableName="booking">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="discount_percent" type="double precision"/>
+            <column name="state" type="smallint">
+                <constraints checkConstraint="booking_state_check" nullable="true"/>
+            </column>
+            <column name="appointment_date" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="service">
+            <column autoIncrement="true" name="id" type="bigint">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="price" type="double precision">
+                <constraints nullable="false"/>
+            </column>
+            <column name="duration" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(255)"/>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="booking_services">
+            <column name="booking_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="service_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint
+                baseTableName="booking_services"
+                baseColumnNames="booking_id"
+                referencedTableName="booking"
+                referencedColumnNames="id"
+                constraintName="fk96s1e9neeevdkrc0uir5rbsgx"/>
+
+        <addForeignKeyConstraint
+                baseTableName="booking_services"
+                baseColumnNames="service_id"
+                referencedTableName="service"
+                referencedColumnNames="id"
+                constraintName="fk54clakuh2mj7p7p7bq6l7vy1o"/>
+    </changeSet>
+
+</databaseChangeLog>
