@@ -9,8 +9,4 @@ public record ServiceResponseDTO(long id,
                                  String description,
                                  @Positive long duration,
                                  @Positive double price) {
-
-    public ServiceResponseDTO(long id, ServiceRequestDTO service) {
-        this(id, service.name(), service.description(), service.duration(), service.price());
-    }
 }

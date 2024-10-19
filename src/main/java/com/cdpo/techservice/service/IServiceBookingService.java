@@ -2,6 +2,7 @@ package com.cdpo.techservice.service;
 
 import com.cdpo.techservice.dto.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,4 +24,6 @@ public interface IServiceBookingService {
     Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDiscountDTO updateDTO);
 
     List<BookingResponseDTO> getAllProvidedBookings();
+
+    List<RevenueDTO> calculateRevenue(LocalDate from, LocalDate to);
 }

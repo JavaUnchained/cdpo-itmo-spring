@@ -1,50 +1,17 @@
 package com.cdpo.techservice.repository;
 
 import com.cdpo.techservice.model.Service;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
-import java.util.List;
+public interface IServiceRepository extends JpaRepository<Service,Long>{
 
-public interface IServiceRepository {
-    /**
-     * Method to create a new service
-     */
-    long createService(String name, String description, long duration, double price);
 
-    /**
-     * Method to get all services
-     *
-     * @return services
-     */
-    List<Service> getAllServices();
-
-    /**
-     * Method to get a service by ID
-     *
-     * @param id id of target service
-     * @return target service
-     */
-    Service getServiceById(long id);
-
-    /**
-     * Method to get a services by IDs
-     *
-     * @param ids ids of target services
-     * @return target services
-     */
-    List<Service> getServicesByIds(List<Long> ids);
-
-    /**
-     * Method to update an existing service
-     *
-     * @return updated service
-     */
-    Service updateServiceById(long id, String name, String description, Long duration, Double price);
-
-    /**
-     * Method to delete a service by ID
-     *
-     * @param id target id to delete
-     * @return delete status
-     */
-    boolean deleteServiceById(long id);
+    @Transactional
+    @Modifying
+    @Query("update Service s set s.name = ?1, s.description = ?2, s.duration = ?3, s.price = ?4 where s.id = ?5")
+    void update(String name, String description, Long duration, Double price, long id);
 }
+

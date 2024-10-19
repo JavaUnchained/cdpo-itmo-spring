@@ -2,7 +2,9 @@ package com.cdpo.techservice.controller;
 
 import com.cdpo.techservice.dto.*;
 import com.cdpo.techservice.service.IServiceBookingService;
+import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -44,8 +47,7 @@ public class ServiceBookingController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BookingResponseDTO> getBooking(@PathVariable long id,
-                                                          @RequestParam(required = false) BookingStateDTO stateDTO) {
+    public ResponseEntity<BookingResponseDTO> getBooking(@PathVariable long id) {
         return iService.getBookingById(id)
                         .map(ResponseEntity::ok)
                         .orElseGet(() -> ResponseEntity.notFound().build());
@@ -71,5 +73,14 @@ public class ServiceBookingController {
     public ResponseEntity<List<BookingResponseDTO>> getProvidedService() {
         List<BookingResponseDTO> providedBookings = iService.getAllProvidedBookings();
         return providedBookings.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(providedBookings);
+    }
+
+    @GetMapping("/revenue")
+    public ResponseEntity<List<RevenueDTO>> getBookingRevenue(
+                                                        @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                        @Nullable @PastOrPresent LocalDate from,
+                                                        @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                        LocalDate to) {
+        return ResponseEntity.ok(iService.calculateRevenue(from, to));
     }
 }

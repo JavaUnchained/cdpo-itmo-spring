@@ -2,6 +2,7 @@ package com.cdpo.techservice.service;
 
 import com.cdpo.techservice.dto.ServiceRequestDTO;
 import com.cdpo.techservice.dto.ServiceResponseDTO;
+import com.cdpo.techservice.mapper.ServiceMapper;
 import com.cdpo.techservice.model.Service;
 import com.cdpo.techservice.repository.IServiceRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,54 +17,58 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ServiceService implements IServiceService {
     private final IServiceRepository serviceRepository;
+    private final ServiceMapper serviceMapper;
 
     @Override
     public long createService(ServiceRequestDTO service) {
         if (service.description() != null && service.description().isBlank()) {
             return -1;
         }
-        return serviceRepository.createService(
-                service.name(),
-                service.description(),
-                service.duration(),
-                service.price());
+        return serviceRepository.save(serviceMapper.toEntity(service)).getId();
     }
 
     @Override
     public List<ServiceResponseDTO> getAllServices() {
-        return serviceRepository.getAllServices().stream()
-                .map(ServiceService::serviceToResponseDTO).collect(Collectors.toList());
+        return serviceRepository.findAll()
+                .stream().map(serviceMapper::toDTO).collect(Collectors.toList());
     }
 
     @Override
     public Optional<ServiceResponseDTO> getServiceById(long id) {
-        return Optional.ofNullable(serviceRepository.getServiceById(id))
-                .map(ServiceService::serviceToResponseDTO);
+        return serviceRepository.findById(id).map(serviceMapper::toDTO);
     }
 
     @Override
     public Optional<ServiceResponseDTO> updateService(long id, ServiceRequestDTO updates) {
-        return Optional.ofNullable(
-                serviceRepository.updateServiceById(
-                        id,
-                        updates.name(),
-                        updates.description(),
-                        updates.duration(),
-                        updates.price())
-        ).map(ServiceService::serviceToResponseDTO);
+        Service service = serviceRepository.findById(id).get();
+        if (updates.name() != null) {
+            service.setName(updates.name());
+        }
+        if (updates.description() != null) {
+            service.setDescription(updates.description());
+        }
+        if (updates.duration() != null) {
+            service.setDuration(updates.duration());
+        }
+        if(updates.price() != null) {
+            service.setPrice(updates.price());
+        }
+
+        serviceRepository.update(
+                service.getName(),
+                service.getDescription(),
+                service.getDuration(),
+                service.getPrice(),
+                service.getId()
+        );
+
+
+        return Optional.ofNullable(serviceMapper.toDTO(service));
     }
 
     @Override
     public boolean deleteService(long id) {
-        return serviceRepository.deleteServiceById(id);
-    }
-
-    private static ServiceResponseDTO serviceToResponseDTO(Service service) {
-        return new ServiceResponseDTO(
-                service.getId(),
-                service.getName(),
-                service.getDescription(),
-                service.getDuration(),
-                service.getPrice());
+        serviceRepository.deleteById(id);
+        return true;
     }
 }
