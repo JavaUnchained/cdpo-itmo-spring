@@ -1,109 +1,101 @@
 package com.cdpo.techservice.service;
 
 import com.cdpo.techservice.dto.*;
+import com.cdpo.techservice.exception.IllegalInputParameters;
 import com.cdpo.techservice.exception.NotFoundException;
 import com.cdpo.techservice.mapper.BookingMapper;
 import com.cdpo.techservice.mapper.RevenueMapper;
 import com.cdpo.techservice.model.Booking;
 import com.cdpo.techservice.model.BookingState;
 import com.cdpo.techservice.repository.IServiceBookingRepository;
-import com.cdpo.techservice.repository.IServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Primary
 @Service
 @RequiredArgsConstructor
 public class ServiceBookingService implements IServiceBookingService {
+    private static final String NOT_FOUND = "Booking not found";
+    private static final String BOTH_CANNOT_BE_NULL = "From and To both cannot be null";
+
     private final IServiceBookingRepository bookingRepository;
-    private final IServiceRepository serviceRepository;
     private final BookingMapper bookingMapper;
     private final RevenueMapper revenueMapper;
 
     @Override
     public long createBooking(BookingRequestDTO requestBooking) {
-        List<com.cdpo.techservice.model.Service> services = serviceRepository.findAllById(requestBooking.serviceIds());
-        if(services.isEmpty()) {
-            throw new NotFoundException("No services found");
-        }
-
-        Booking entity = bookingMapper.toEntity(requestBooking);
-        entity.setServices(services);
-        entity.setState(BookingState.NEW);
-        return bookingRepository.save(entity).getId();
+        return bookingRepository.save(bookingMapper.toEntity(requestBooking)).getId();
     }
 
     @Override
-    public Optional<BookingResponseDTO> getBookingById(Long id) {
+    public BookingResponseDTO getBookingById(Long id) {
         return bookingRepository.findById(id)
-                .map(bookingMapper::toDto);
+                .map(bookingMapper::toDto).orElseThrow(() -> new NotFoundException(NOT_FOUND));
     }
 
     @Override
     public List<BookingResponseDTO> getAllFilteredBy(BookingStateDTO stateDTO) {
-        return bookingRepository
-                .findByState(BookingState.valueOf(stateDTO.name()))
-                .stream().map(bookingMapper::toDto)
-                .collect(Collectors.toList());
+        List<Booking> bookings = bookingRepository.findByState(BookingState.valueOf(stateDTO.name()));
+        if(bookings.isEmpty()) throw new NotFoundException(NOT_FOUND);
+        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public List<BookingResponseDTO> getAllFilteredBy(LocalDateTime time) {
-        return bookingRepository.findByAppointmentTime(time)
-                .stream()
-                .map(bookingMapper::toDto)
-                .collect(Collectors.toList());
+        List<Booking> bookings = bookingRepository.findByAppointmentTime(time);
+        if(bookings.isEmpty()) throw new NotFoundException(NOT_FOUND);
+        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public List<BookingResponseDTO> getAllBookings() {
-        return bookingRepository.findAll().stream().map(bookingMapper::toDto).collect(Collectors.toList());
+        List<Booking> bookings = bookingRepository.findAll();
+        if(bookings.isEmpty()) throw new NotFoundException(NOT_FOUND);
+        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
-    public boolean cancelBooking(Long id) {
-        return bookingRepository.updateStateById(BookingState.CANCELLED, id) > 0;
+    public void cancelBooking(Long id) {
+        if (bookingRepository.updateStateById(BookingState.CANCELLED, id) == 0) {
+            throw new NotFoundException(NOT_FOUND);
+        }
     }
 
     @Override
-    public Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateTimeDTO updateDTO) {
+    public BookingResponseDTO updateBooking(Long id, BookingUpdateTimeDTO updateDTO) {
         bookingRepository.updateAppointmentTimeById(updateDTO.appointmentTime(), id);
         return getBookingById(id);
     }
 
     @Override
-    public Optional<BookingResponseDTO> updateBooking(Long id, BookingUpdateDiscountDTO updateDTO) {
+    public BookingResponseDTO updateBooking(Long id, BookingUpdateDiscountDTO updateDTO) {
         bookingRepository.updateDiscountPercentById(updateDTO.discountPercent(), id);
         return getBookingById(id);
     }
 
     @Override
     public List<BookingResponseDTO> getAllProvidedBookings() {
-        /**
-         * Сейчас не предусмотрена смены статуса на DONE, поэтому сейчас наглядней по времени
-         */
-        return bookingRepository.findByAppointmentTimeLessThan(LocalDateTime.now()).stream().map(bookingMapper::toDto).collect(Collectors.toList());
+        /* Пока статуса DONE нет, поэтому сейчас наглядней по времени */
+        List<Booking> bookings = bookingRepository.findByAppointmentTimeLessThan(LocalDateTime.now());
+        if(bookings.isEmpty()) throw new NotFoundException(NOT_FOUND);
+        return bookings.stream().map(bookingMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public List<RevenueDTO> calculateRevenue(LocalDate from, LocalDate to) {
-        List<Booking> bookings;
-        if(from == null && to == null) {
-            throw new RuntimeException();
-        }
-        bookings = getBookingList(from, to);
-
-        if (bookings.isEmpty()) {
-            throw new NotFoundException("No bookings found");
-        }
-
-        return calculateRevenus(bookings);
+        if(from == null && to == null) throw new IllegalInputParameters(BOTH_CANNOT_BE_NULL);
+        List<Booking> bookings = getBookingList(from, to);
+        if (bookings.isEmpty()) throw new NotFoundException(NOT_FOUND);
+        return calculateRevenues(bookings);
     }
 
     private List<Booking> getBookingList(LocalDate from, LocalDate to) {
@@ -122,7 +114,7 @@ public class ServiceBookingService implements IServiceBookingService {
         return localDate == null ? null : localDate.atStartOfDay();
     }
 
-    private List<RevenueDTO> calculateRevenus(List<Booking> bookings) {
+    private List<RevenueDTO> calculateRevenues(List<Booking> bookings) {
         List<RevenueDTO> result = new ArrayList<>();
         for (Map.Entry<LocalDate, List<Booking>> entry : groupByDateEntries(bookings)) {
             result.add(revenueMapper.toDTO(entry.getKey(), getDateRevenue(entry)));

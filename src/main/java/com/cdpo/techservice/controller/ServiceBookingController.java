@@ -27,17 +27,20 @@ public class ServiceBookingController {
 
     @PostMapping
     public ResponseEntity<Long> createBooking(@RequestBody @Valid  BookingRequestDTO requestBooking) {
-        long createdId = iService.createBooking(requestBooking);
-        return createdId == -1 ? ResponseEntity.badRequest().build() : new ResponseEntity<>(createdId, HttpStatus.CREATED);
+        return new ResponseEntity<>(iService.createBooking(requestBooking), HttpStatus.CREATED);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> cancelBooking(@RequestParam @Positive Long id) {
-        return iService.cancelBooking(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        iService.cancelBooking(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<BookingResponseDTO>> getBookingsByTime(@RequestParam("target_time") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime targetTime) {
+    public ResponseEntity<List<BookingResponseDTO>> getBookingsByTime(@RequestParam("target_time")
+                                                                      @PastOrPresent
+                                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                                                                      LocalDateTime targetTime) {
         return ResponseEntity.ok(iService.getAllFilteredBy(targetTime));
     }
 
@@ -48,38 +51,34 @@ public class ServiceBookingController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BookingResponseDTO> getBooking(@PathVariable long id) {
-        return iService.getBookingById(id)
-                        .map(ResponseEntity::ok)
-                        .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(iService.getBookingById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<BookingResponseDTO> changeBookingAppointmentTime(@PathVariable @Positive long id,
                                                                            @Valid @RequestBody BookingUpdateTimeDTO updateDTO) {
-        return iService.updateBooking(id, updateDTO)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(iService.updateBooking(id, updateDTO));
     }
 
     @PutMapping("/{id}/discount")
     public ResponseEntity<BookingResponseDTO> changeDiscount(@PathVariable @Positive long id,
                                                              @Valid @RequestBody BookingUpdateDiscountDTO updateDTO) {
-        return iService.updateBooking(id, updateDTO)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(iService.updateBooking(id, updateDTO));
     }
 
     @GetMapping("/done")
     public ResponseEntity<List<BookingResponseDTO>> getProvidedService() {
         List<BookingResponseDTO> providedBookings = iService.getAllProvidedBookings();
-        return providedBookings.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(providedBookings);
+        return ResponseEntity.ok(providedBookings);
     }
 
     @GetMapping("/revenue")
     public ResponseEntity<List<RevenueDTO>> getBookingRevenue(
-                                                        @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                        @RequestParam(value = "from", required = false)
+                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                                                         @Nullable @PastOrPresent LocalDate from,
-                                                        @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                                        @RequestParam(value = "to", required = false)
+                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
                                                         LocalDate to) {
         return ResponseEntity.ok(iService.calculateRevenue(from, to));
     }

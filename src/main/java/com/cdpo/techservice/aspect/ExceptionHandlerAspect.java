@@ -1,5 +1,6 @@
 package com.cdpo.techservice.aspect;
 
+import com.cdpo.techservice.dto.TeachServiceExceptionDTO;
 import com.cdpo.techservice.exception.TeachServiceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,12 @@ public class ExceptionHandlerAspect extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = TeachServiceException.class)
     protected ResponseEntity<Object> handle(TeachServiceException ex, WebRequest request) {
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), ex.getHttpStatus(), request);
+        return handleExceptionInternal(
+                ex,
+                new TeachServiceExceptionDTO(ex.getMessage()),
+                new HttpHeaders(),
+                ex.getHttpStatus(),
+                request
+        );
     }
 }

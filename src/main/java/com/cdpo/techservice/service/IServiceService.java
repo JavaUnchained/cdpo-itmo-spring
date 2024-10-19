@@ -5,7 +5,6 @@ import com.cdpo.techservice.dto.ServiceResponseDTO;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Optional;
 
 @Validated
 public interface IServiceService {
@@ -14,7 +13,7 @@ public interface IServiceService {
      * Method to create a new service
      *
      * @param service new service
-     * @return id of saved servicee
+     * @return id of saved service
      */
     long createService(ServiceRequestDTO service);
 
@@ -31,10 +30,10 @@ public interface IServiceService {
      * @param id id of target service
      * @return target service
      */
-    Optional<ServiceResponseDTO> getServiceById(long id);
+    ServiceResponseDTO getServiceById(long id);
 
-    default Optional<List<ServiceResponseDTO>> getServiceByIdAsList(long id) {
-        return getServiceById(id).map(List::of);
+    default List<ServiceResponseDTO> getServiceByIdAsList(long id) {
+        return List.of(getServiceById(id));
     }
 
     /**
@@ -44,13 +43,12 @@ public interface IServiceService {
      * @param updates new data to update
      * @return updated service
      */
-    Optional<ServiceResponseDTO> updateService(long id, ServiceRequestDTO updates);
+    ServiceResponseDTO updateService(long id, ServiceRequestDTO updates);
 
     /**
      * Method to delete a service by ID
      *
      * @param id target id to delete
-     * @return delete status
      */
-    boolean deleteService(long id);
+    void deleteService(long id);
 }

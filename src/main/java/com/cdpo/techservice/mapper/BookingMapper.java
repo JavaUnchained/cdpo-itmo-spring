@@ -4,6 +4,7 @@ import com.cdpo.techservice.dto.BookingRequestDTO;
 import com.cdpo.techservice.dto.BookingResponseDTO;
 import com.cdpo.techservice.dto.BookingStateDTO;
 import com.cdpo.techservice.dto.ServiceResponseDTO;
+import com.cdpo.techservice.exception.NotFoundException;
 import com.cdpo.techservice.model.Booking;
 import com.cdpo.techservice.model.BookingState;
 import com.cdpo.techservice.model.Service;
@@ -20,6 +21,9 @@ public class BookingMapper {
 
     public Booking toEntity(BookingRequestDTO bookingDto) {
         List<Service> services = serviceRepository.findAllById(bookingDto.serviceIds());
+        if (services.isEmpty()) {
+            throw new NotFoundException("Services not found");
+        }
         Booking booking = new Booking();
         booking.setServices(services);
         booking.setState(BookingState.NEW);

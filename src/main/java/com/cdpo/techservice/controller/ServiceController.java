@@ -23,32 +23,25 @@ public class ServiceController {
 
     @PostMapping
     public ResponseEntity<Long> createService(@RequestBody @Valid ServiceRequestDTO service) {
-        long createdId = iService.createService(service);
-        return createdId == -1 ? ResponseEntity.badRequest().build() : new ResponseEntity<>(createdId, HttpStatus.CREATED);
+        return new ResponseEntity<>(iService.createService(service), HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<ServiceResponseDTO>> getServices(@Positive @RequestParam(required = false) Long id) {
-        return id == null ?
-                ResponseEntity.ok(iService.getAllServices()) :
-                iService.getServiceByIdAsList(id)
-                        .map(ResponseEntity::ok)
-                        .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(id == null ? iService.getAllServices() : iService.getServiceByIdAsList(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ServiceResponseDTO> updateService(@Positive @PathVariable long id,
                                                                    @RequestBody ServiceRequestDTO updates) {
-        return iService.updateService(id, updates)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(iService.updateService(id, updates));
     }
 
 
     @DeleteMapping
     public ResponseEntity<Void> deleteService(@Positive @RequestParam Long id) {
-        return iService.deleteService(id) ?
-                ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+        iService.deleteService(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
