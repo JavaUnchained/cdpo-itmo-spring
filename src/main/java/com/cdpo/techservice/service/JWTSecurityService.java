@@ -4,33 +4,68 @@ import com.cdpo.techservice.dto.TokenDTO;
 import com.cdpo.techservice.exception.AuthenticationException;
 import com.cdpo.techservice.model.RoleType;
 import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.DirectEncrypter;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.SimpleSecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class JWTSecurityService implements IJWTSecurityService {
-    public static final String CITY_CLAIM = "city";
-    public static final String ALLOWS_OPERATION_CLAIM = "allowsOperation";
-    @Value("${security.jwtSecret}")
-    private String jwtSecret;
-    @Value("${security.jwtRefreshSecret}")
-    private String jwtRefreshSecret;
+    private static final String ALLOWS_OPERATION_CLAIM = "allowsOperation";
+    private static final String CITY_CLAIM = "city";
+
     @Value("${security.jwtSecretExpiration}")
     private long jwtSecretExpiration;
+
+    private final JWEEncrypter jweEncrypter;
+    private final ConfigurableJWTProcessor<SimpleSecurityContext> jwtProcessor;
+
+    @Autowired
+    public JWTSecurityService(@Qualifier("jwtEncrypter") JWEEncrypter jweEncrypter,
+                              @Qualifier("jwtProcessor") ConfigurableJWTProcessor<SimpleSecurityContext> jwtProcessor) {
+        this.jweEncrypter = jweEncrypter;
+        this.jwtProcessor = jwtProcessor;
+    }
 
     @Override
     public TokenDTO generateJWT(UserDetails userDetails, RoleType roleType) {
         try {
             return new TokenDTO(generateToken(userDetails, roleType), generateRefreshToken());
         } catch (JOSEException e) {
-            throw new AuthenticationException(e.getMessage());
+            throw new AuthenticationException(HttpStatus.FORBIDDEN, e.getMessage());
         }
+    }
+
+    @Override
+    public String getSubject(String token) throws BadJOSEException, ParseException, JOSEException {
+        return extractClaims(token).getSubject();
+    }
+
+    @Override
+    public boolean isTokenValid(String token, UserDetails userDetails) throws BadJOSEException, ParseException, JOSEException {
+        return getSubject(token).equals(userDetails.getUsername())
+                && extractClaims(token).getExpirationTime().after(new Date());
+    }
+
+    @Override
+    public String getStringClaimsByKey(String token, String claimsKey) throws BadJOSEException, ParseException, JOSEException {
+        return extractClaims(token).getStringClaim(claimsKey);
+    }
+
+    private JWTClaimsSet extractClaims(String token) throws BadJOSEException, ParseException, JOSEException {
+        return jwtProcessor.process(token, null);
     }
 
     private String generateRefreshToken() {
@@ -56,7 +91,7 @@ public class JWTSecurityService implements IJWTSecurityService {
         return new JWTClaimsSet.Builder()
                 .subject(subject)
                 .claim(CITY_CLAIM, "saint-petersburg")
-                .claim(ALLOWS_OPERATION_CLAIM, roleType.getPrivileges().toString())
+                .claim(ALLOWS_OPERATION_CLAIM, roleType.getPrivileges().toString()) //just for example
                 .issueTime(new Date(timeMillis))
                 .expirationTime(new Date(timeMillis + jwtSecretExpiration))
                 .build()
@@ -64,6 +99,6 @@ public class JWTSecurityService implements IJWTSecurityService {
     }
 
     private void encrypt(JWEObject jweObject) throws JOSEException {
-        jweObject.encrypt((JWEEncrypter) webApplicationContext.getBean("JWEEncrypter"));
+        jweObject.encrypt(jweEncrypter);
     }
 }

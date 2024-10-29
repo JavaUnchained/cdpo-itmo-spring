@@ -10,6 +10,7 @@ import com.cdpo.techservice.model.UserRole;
 import com.cdpo.techservice.repository.IServiceUserRepository;
 import com.cdpo.techservice.repository.IServiceUserRoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -67,7 +68,7 @@ public class ServiceAuthentication implements IServiceAuthentication {
 
     private void checkIsNotExist(ServiceUserDto userDto) {
         if (serviceUserRepository.existsByUsername(userDto.username()))
-            throw new AuthenticationException(String.format(ALREADY_TAKEN, userDto.username()));
+            throw new AuthenticationException(HttpStatus.FORBIDDEN, String.format(ALREADY_TAKEN, userDto.username()));
     }
 
     private Authentication authenticate(String username, String password) {
