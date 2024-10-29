@@ -87,7 +87,7 @@ public class ServiceBookingController {
     @Secured({"ROLE_SUPER_USER", "ROLE_OPERATOR"})
     @PutMapping("/discount")
     public ResponseEntity<?> changeDiscountLimit(@Valid @RequestBody BookingUpdateDiscountDTO updateDTO) {
-        //todo implement.
+        //fixme нужно будет реализовать в будующих дз
         return null;
     }
 
