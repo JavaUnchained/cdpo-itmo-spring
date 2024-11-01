@@ -1,6 +1,7 @@
 package com.cdpo.techservice.service;
 
 import com.cdpo.techservice.dto.ServiceUserDto;
+import com.cdpo.techservice.dto.ServiceUserUpdateDto;
 import com.cdpo.techservice.dto.TokenDTO;
 import com.cdpo.techservice.exception.AuthenticationException;
 import com.cdpo.techservice.mapper.ServiceUserMapper;
@@ -32,9 +33,14 @@ public class ServiceAuthentication implements IServiceAuthentication {
 
     @Override
     public void registration(ServiceUserDto userDto) {
+        registration(userDto, RoleType.ROLE_USER);
+    }
+
+    @Override
+    public void registration(ServiceUserDto userDto, RoleType roleType) {
         checkIsNotExist(userDto);
         ServiceUser user = serviceUserMapper.toEntity(userDto);
-        fillRole(user);
+        fillRole(user, roleType);
         fillPassword(user);
         serviceUserRepository.save(user);
     }
@@ -50,14 +56,19 @@ public class ServiceAuthentication implements IServiceAuthentication {
         );
     }
 
-    private void fillRole(ServiceUser user) {
-        serviceUserRoleRepository.findByRoleType(RoleType.ROLE_USER)
-                .ifPresentOrElse(user::setUserRole, () -> user.setUserRole(createRole()));
+    @Override
+    public ServiceUserDto updateProfile(ServiceUserUpdateDto serviceUserUpdateDto) {
+        return null;
     }
 
-    private UserRole createRole() {
+    private void fillRole(ServiceUser user, RoleType roleType) {
+        serviceUserRoleRepository.findByRoleType(roleType)
+                .ifPresentOrElse(user::setUserRole, () -> user.setUserRole(createUserRole(roleType)));
+    }
+
+    private UserRole createUserRole(RoleType roleType) {
         UserRole userRole = new UserRole();
-        userRole.setRoleType(RoleType.ROLE_USER);
+        userRole.setRoleType(roleType);
         serviceUserRoleRepository.save(userRole);
         return userRole;
     }

@@ -37,6 +37,10 @@ public class Booking {
 
     @Column(name = "state")
     private BookingState state;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private ServiceUser user;
 }
 
 

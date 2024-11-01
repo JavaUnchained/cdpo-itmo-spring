@@ -1,19 +1,25 @@
 package com.cdpo.techservice.controller;
 
+import com.cdpo.techservice.dto.ServiceUserDto;
+import com.cdpo.techservice.dto.ServiceUserUpdateDto;
+import com.cdpo.techservice.service.IServiceAuthentication;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/profile")
 public class ProfileController {
-
+    private final IServiceAuthentication serviceAuthentication;
     @Secured({"ROLE_SUPER_USER", "ROLE_OPERATOR"})
     @PutMapping("/operator")
-    public void updateOperatorProfile() {
-        //todo implement
-        //todo если редактирует оператор то только свой профиль админ любой
+    public ResponseEntity<ServiceUserDto> updateOperatorProfile(@RequestBody ServiceUserUpdateDto serviceUserUpdateDto) {
+        return ResponseEntity.ok(serviceAuthentication.updateProfile(serviceUserUpdateDto));
     }
 
 

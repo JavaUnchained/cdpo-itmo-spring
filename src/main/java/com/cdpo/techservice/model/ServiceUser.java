@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -36,4 +39,6 @@ public class ServiceUser {
     @JoinColumn(name = "role_id")
     private UserRole userRole;
 
+    @OneToMany( mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<Booking> bookings = new ArrayList<>();
 }
