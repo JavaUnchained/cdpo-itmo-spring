@@ -79,7 +79,7 @@ public class JWTSecurityService implements IJWTSecurityService {
     }
 
     private JWEHeader getHeader() {
-        return new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128CBC_HS256);
+        return new JWEHeader(JWEAlgorithm.DIR, EncryptionMethod.A128GCM);
     }
 
     private Payload getPayload(String subject, RoleType roleType) {

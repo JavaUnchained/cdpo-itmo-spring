@@ -12,5 +12,5 @@ public interface IServiceAuthentication {
 
     TokenDTO loginAccount(String username, String password);
 
-    ServiceUserDto updateProfile(ServiceUserUpdateDto serviceUserUpdateDto);
+    ServiceUserDto updateProfile(ServiceUserUpdateDto serviceUserUpdateDto, String username);
 }

@@ -19,7 +19,7 @@ public class AuthenticationController {
     private final IServiceAuthentication serviceAuthentication;
 
     @ResponseBody
-    @PostMapping("/login")
+    @GetMapping("/login")
     public ResponseEntity<TokenDTO> loginAccount(@RequestParam("application_user_username") String username,
                                                  @RequestParam("application_user_password") String password) {
         return ResponseEntity.ok(serviceAuthentication.loginAccount(username, password));

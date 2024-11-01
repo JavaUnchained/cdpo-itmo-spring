@@ -39,7 +39,7 @@ public class JWEEncrypterFactory {
         ConfigurableJWTProcessor<SimpleSecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
         JWKSource<SimpleSecurityContext> jweKeySource = new ImmutableSecret<>(jwtSecret.getBytes());
         JWEKeySelector<SimpleSecurityContext> jweKeySelector =
-                new JWEDecryptionKeySelector<>(JWEAlgorithm.DIR, EncryptionMethod.A128CBC_HS256, jweKeySource);
+                new JWEDecryptionKeySelector<>(JWEAlgorithm.DIR, EncryptionMethod.A128GCM, jweKeySource);
         jwtProcessor.setJWEKeySelector(jweKeySelector);
         return jwtProcessor;
     }

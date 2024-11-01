@@ -4,6 +4,7 @@ import com.cdpo.techservice.dto.ServiceUserDto;
 import com.cdpo.techservice.dto.ServiceUserUpdateDto;
 import com.cdpo.techservice.dto.TokenDTO;
 import com.cdpo.techservice.exception.AuthenticationException;
+import com.cdpo.techservice.exception.UserNotFoundException;
 import com.cdpo.techservice.mapper.ServiceUserMapper;
 import com.cdpo.techservice.model.RoleType;
 import com.cdpo.techservice.model.ServiceUser;
@@ -20,10 +21,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class ServiceAuthentication implements IServiceAuthentication {
     public static final String ALREADY_TAKEN = "Username %s is already taken";
+    public static final String NOT_ALLOWED_TO_CHANGE_NOT_YOUR_PROFILE = "Not allowed to change not your profile";
     private final ServiceUserMapper serviceUserMapper;
     private final IServiceUserRepository serviceUserRepository;
     private final IServiceUserRoleRepository serviceUserRoleRepository;
@@ -57,8 +61,18 @@ public class ServiceAuthentication implements IServiceAuthentication {
     }
 
     @Override
-    public ServiceUserDto updateProfile(ServiceUserUpdateDto serviceUserUpdateDto) {
-        return null;
+    public ServiceUserDto updateProfile(ServiceUserUpdateDto serviceUserUpdateDto, String username) {
+        ServiceUser applyingUser = serviceUserRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        if (applyingUser.getUserRole().getRoleType() == RoleType.ROLE_SUPER_USER) {
+            applyingUser = serviceUserRepository
+                    .findByUsername(serviceUserUpdateDto.username())
+                    .orElseThrow(UserNotFoundException::new);
+        } else if (!serviceUserUpdateDto.username().equals(username)) {
+                throw new AuthenticationException(HttpStatus.FORBIDDEN, NOT_ALLOWED_TO_CHANGE_NOT_YOUR_PROFILE);
+        }
+        ServiceUser merged = serviceUserMapper.merge(serviceUserUpdateDto, applyingUser, passwordEncoder);
+        serviceUserRepository.save(merged);
+        return serviceUserMapper.toDto(merged);
     }
 
     private void fillRole(ServiceUser user, RoleType roleType) {

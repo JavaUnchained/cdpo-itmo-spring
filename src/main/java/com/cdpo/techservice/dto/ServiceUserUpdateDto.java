@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * DTO for {@link ServiceUser}
  */
-public record ServiceUserUpdateDto(@Nullable @NotBlank @Pattern(regexp = "^[A-Z][a-z]+$") String username,
+public record ServiceUserUpdateDto(@NotNull @NotBlank @Pattern(regexp = "^[A-Z][a-z]+$") String username,
                                    @Nullable @NotBlank @Pattern(regexp = "^[A-Z][a-z]+$") String firstName,
                                    @Nullable @NotBlank @Pattern(regexp = "^[A-Z][a-z]+$") String lastName,
                                    @Nullable @Email @NotBlank String email,
