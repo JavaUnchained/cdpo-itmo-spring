@@ -5,8 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class NotificationDiscountDTO extends NotificationDTO {
     @NotNull
-    private Double discountInPercent;
+    private final Double discountInPercent;
+
+    public NotificationDiscountDTO(Long id, String email, String firstName, String lastName, Double discountInPercent) {
+        super(id, email, firstName, lastName);
+        this.discountInPercent = discountInPercent;
+    }
 }

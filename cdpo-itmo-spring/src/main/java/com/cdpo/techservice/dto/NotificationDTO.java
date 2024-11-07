@@ -8,19 +8,24 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public abstract class NotificationDTO {
-
     @NotNull
     @Positive
-    private Long id;
+    private final Long id;
     @NotNull
     @Email(message = "Invalid email")
-    private String email;
+    private final String email;
     @NotNull
     @NotBlank
-    private String firstName;
+    private final String firstName;
     @NotNull
     @NotBlank
-    private String lastName;
+    private final String lastName;
+
+    public NotificationDTO(Long id, String email, String firstName, String lastName) {
+        this.id = id;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 }

@@ -5,6 +5,7 @@ import com.cdpo.techservice.exception.IllegalInputParameters;
 import com.cdpo.techservice.exception.NotFoundException;
 import com.cdpo.techservice.exception.UserNotFoundException;
 import com.cdpo.techservice.mapper.BookingMapper;
+import com.cdpo.techservice.mapper.NotificationMapper;
 import com.cdpo.techservice.mapper.RevenueMapper;
 import com.cdpo.techservice.model.Booking;
 import com.cdpo.techservice.model.BookingState;
@@ -28,14 +29,20 @@ import java.util.stream.Stream;
 public class ServiceBookingService implements IServiceBookingService {
     private static final String BOTH_CANNOT_BE_NULL = "From and To both cannot be null";
 
+    private final INotificationClientService notificationClientService;
     private final IServiceBookingRepository bookingRepository;
     private final IServiceUserRepository userRepository;
     private final BookingMapper bookingMapper;
     private final RevenueMapper revenueMapper;
+    private final NotificationMapper notificationMapper;
 
     @Override
     public long createBooking(BookingRequestDTO requestBooking, String username) {
-        return bookingRepository.save(bookingMapper.toEntity(requestBooking, getUser(username))).getId();
+        Booking entity = bookingMapper.toEntity(requestBooking, getUser(username));
+        long id = bookingRepository.save(entity).getId();
+        entity.setId(id);
+        sendChangeStateNotification(entity);
+        return id;
     }
 
     @Override
@@ -93,6 +100,7 @@ public class ServiceBookingService implements IServiceBookingService {
         if (bookingRepository.updateStateById(BookingState.CANCELLED, id) == 0) {
             throw new NotFoundException();
         }
+        sendChangeStateAndChangeDiscountNotification(id);
     }
 
     @Override
@@ -150,7 +158,30 @@ public class ServiceBookingService implements IServiceBookingService {
         }
         Booking merged = bookingMapper.merge(booking, updateDTO, user);
         bookingRepository.save(merged);
+        if (isStateChanged(updateDTO, booking)) {
+            sendChangeStateNotification(booking);
+        }
         return bookingMapper.toDto(merged);
+    }
+
+    private void sendChangeStateNotification(Booking booking) {
+        Optional.ofNullable(notificationClientService).ifPresent(s ->
+                s.sendNotification(notificationMapper.toBookingNotification(booking))
+        );
+    }
+
+    private void sendChangeStateAndChangeDiscountNotification(Long id) {
+        Optional<Booking> byId = bookingRepository.findById(id);
+        byId.flatMap(booking -> Optional.ofNullable(notificationClientService)).ifPresent(s -> {
+            s.sendNotification(notificationMapper.toBookingNotification(byId.get()));
+            s.sendNotification(notificationMapper.toDiscountNotification(byId.get()));
+        });
+    }
+
+    private static boolean isStateChanged(BookingDTO updateDTO, Booking booking) {
+        return updateDTO.state() != null
+                && booking.getState() != null
+                && !updateDTO.state().name().equals(booking.getState().name());
     }
 
     private List<Booking> getBookingList(LocalDate from, LocalDate to) {
