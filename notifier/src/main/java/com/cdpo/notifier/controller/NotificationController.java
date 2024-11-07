@@ -20,7 +20,7 @@ public class NotificationController {
         return senderService.send(bookingDTO);
     }
 
-    @PostMapping("/booking")
+    @PostMapping("/discount")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> sendDiscount(@RequestBody NotificationDiscountDTO discountDTO){
         return senderService.send(discountDTO);

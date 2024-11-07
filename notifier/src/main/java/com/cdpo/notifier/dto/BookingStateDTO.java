@@ -1,5 +1,12 @@
 package com.cdpo.notifier.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
 public enum BookingStateDTO {
-    NEW, DONE, CANCELLED;
+    NEW("Created"), DONE("Done"), CANCELLED("Cancelled");
+
+    private final String stateStr;
 }
