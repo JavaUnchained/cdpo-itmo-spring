@@ -1,0 +1,502 @@
+openapi: 3.0.0
+info:
+  title: Tech Services API
+  description: API for managing tech services.
+  version: 1.0.0
+  contact:
+    name: Tech Services Team
+    email: support@techservices.com
+servers:
+  - url: http://localhost:8008/api/v1
+tags:
+  - name: Services
+    description: Operations related to tech services
+  - name: Bookings
+    description: Operations related to tech services booking
+  - name: accounting
+    description: manage your profile and login
+paths:
+  /auth/login:
+    get:
+      operationId: login
+      description: auth and recive token
+      tags:
+        - accounting
+      parameters:
+        - name: application_user_username
+          in: query
+          description: your user name
+          required: true
+          schema:
+            type: string
+        - name: application_user_password
+          in: query
+          description: your password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+  /services:
+    post:
+      operationId: createService
+      description: Create a new service
+      security:
+        - BearerAuth: []
+      tags:
+        - Services
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceRequest'
+      responses:
+        '201':
+          description: Service created successfully, returns the created service with its ID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+        '400':
+          description: Invalid input data
+        '500':
+          description: Internal server error
+    get:
+      operationId: getServices
+      description: Retrieve a list of all services or a specific service by ID
+      security:
+        - BearerAuth: []
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: query
+          description: ID of the service to retrieve (optional)
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A list of services or a single service object
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+    delete:
+      operationId: deleteServices
+      description: Delete service by ID
+      security:
+        - BearerAuth: []
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: query
+          description: ID of the service to retrieve (optional)
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Service not found
+  /services/{id}:
+    put:
+      operationId: updateService
+      description: Update an existing service by ID
+      security:
+        - BearerAuth: []
+      tags:
+        - Services
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the service to update
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceRequest'
+      responses:
+        '200':
+          description: Service updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceResponse'
+        '400':
+          description: Invalid input data
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /services/booking/done:
+    get:
+      operationId: getProvidedService
+      description: Retrieve a list of provided service.
+      security:
+        - BearerAuth: []
+      tags:
+        - Bookings
+      responses:
+        '200':
+          description: A list of all bookings.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /services/booking:
+    post:
+      operationId: createBooking
+      description: Create a booking for a service.
+      security:
+        - BearerAuth: []
+      tags:
+        - Bookings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: Booking created successfully, returns the created booking.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+        '400':
+          description: Invalid input data
+        '500':
+          description: Internal server error
+    delete:
+      operationId: cancelBooking
+      description: Cancel an existing booking by ID.
+      security:
+        - BearerAuth: []
+      tags:
+        - Bookings
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: ID of the booking to cancel.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Booking canceled successfully (no content).
+        '404':
+          description: Booking not found.
+    get :
+      operationId : getBookingsByTime
+      description : Retrieve a list of all bookings or booking by id
+      security:
+        - BearerAuth: []
+      tags :
+        - Bookings
+      parameters:
+        - name: target_time
+          in: query
+          description: ID of the service to retrieve (optional)
+          required: false
+          schema:
+            type : string
+            format : date-time
+      responses :
+        '200' :
+          description : A list of all bookings.
+          content :
+            application/json :
+              schema :
+                type : array
+                items :
+                  $ref : '#/components/schemas/BookingResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /services/booking/all:
+    get :
+      operationId : getBookings
+      description : Retrieve a list of all bookings or booking by id
+      security:
+        - BearerAuth: []
+      tags :
+        - Bookings
+      responses :
+        '200' :
+          description : A list of all bookings.
+          content :
+            application/json :
+              schema :
+                type : array
+                items :
+                  $ref : '#/components/schemas/BookingResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+  /services/booking/{id}:
+    get :
+      operationId : getBooking
+      description : Retrieve a list of all bookings or booking by id
+      security:
+        - BearerAuth: []
+      tags :
+        - Bookings
+      parameters:
+        - name: id
+          in: path
+          description: ID of the service to retrieve (optional)
+          required: true
+          schema:
+            type: integer
+      responses :
+        '200' :
+          description : A list of all bookings.
+          content :
+            application/json :
+              schema :
+                $ref : '#/components/schemas/BookingResponse'
+        '404':
+          description: Service not found
+        '500':
+          description: Internal server error
+    put:
+      operationId: changeBookingAppointmentTime
+      description : change booking appointment time.
+      security:
+        - BearerAuth: []
+      tags :
+        - Bookings
+      parameters :
+        - name : id
+          in : path
+          required : true
+          description : ID of the booking to edit.
+          schema :
+            type : integer
+      requestBody :
+        required : true
+        content :
+          application/json :
+            schema :
+              $ref : '#/components/schemas/BookingUpdate'
+      responses :
+        '200' :
+          description : Booking updated successfully.
+          content :
+            application/json :
+              schema :
+                $ref : '#/components/schemas/BookingResponse'
+        '404' :
+          description : Booking not found.
+        '400' :
+          description : Invalid input data.
+  /services/booking/{id}/discount:
+    put:
+      operationId: changeDiscount
+      description : change booking appointment time.
+      security:
+        - BearerAuth: []
+      tags :
+        - Bookings
+      parameters :
+        - name : id
+          in : path
+          required : true
+          description : ID of the booking to edit.
+          schema :
+            type : integer
+      requestBody :
+        required : true
+        content :
+          application/json :
+            schema :
+              $ref : '#/components/schemas/BookingUpdateDiscount'
+      responses :
+        '200' :
+          description : Booking updated successfully.
+          content :
+            application/json :
+              schema :
+                $ref : '#/components/schemas/BookingResponse'
+        '404' :
+          description : Booking not found.
+        '400' :
+          description : Invalid input data.
+  /services/booking/revenue:
+    get :
+      operationId : getBookingRevenue
+      description : Retrieve a list of all bookings or booking by id
+      security:
+        - BearerAuth: []
+      tags :
+        - Bookings
+      parameters:
+        - name: from
+          in: query
+          description: value from
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: value to
+          required: false
+          schema:
+            type: string
+            format: date
+      responses :
+        '200' :
+          description : A list of revenues
+          content :
+            application/json :
+              schema :
+                type : array
+                items :
+                  $ref : '#/components/schemas/BookingRevenue'
+        '500':
+          description: Internal server error
+components:
+  securitySchemes:
+    BearerAuth: # Имя схемы безопасности
+      type: http
+      scheme: bearer
+  schemas:
+    ServiceResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Web Development"
+        description:
+          type: string
+          example: "Full-stack web development services"
+        duration:
+          type: integer
+        price:
+          type: number
+      required:
+        - id
+        - name
+        - duration
+        - price
+    ServiceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Web Development"
+        description:
+          type: string
+          example: "Full-stack web development services"
+        duration:
+          type: integer
+        price:
+          type: number
+    BookingRequest :
+      type : object
+      properties :
+        service_ids :
+          type: array
+          items:
+            type : integer
+            example : 1
+        appointment_time :
+          type : string
+          format : date-time
+      required:
+        - service_id
+        - appointment_time
+    BookingResponse :
+      type : object
+      properties :
+        id :
+          type : integer
+          example : 1
+        service :
+          type: array
+          items:
+            $ref : '#/components/schemas/ServiceResponse'
+        appointment_time :
+          type : string
+          format : date-time
+        discount_percent:
+          type: number
+        state:
+          type: string
+      required:
+        - id
+        - service
+        - appointment_time
+    BookingUpdate :
+      type : object
+      properties :
+        appointment_time :
+          type : string
+          format : date-time
+      required:
+        - appointment_time
+    BookingUpdateDiscount :
+      type : object
+      properties :
+        discount_percent:
+          type: number
+      required:
+        - discount_percent
+    BookingRevenue :
+      type : object
+      properties:
+        revenue_date:
+          type: string
+          format: date-time
+        revenue:
+          type: number
+      required:
+        - revenue_date
+        - revenue
+    Token :
+      type : object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string

@@ -1,0 +1,7 @@
+package com.cdpo.techservice.model;
+
+public enum Privilege {
+    READ_ANIMAL, WRITE_ANIMAL, EDITE_ANIMAL,
+    READ_BOOKING, WRITE_BOOKING, EDITE_BOOKING, MANAGE_BOOKING_DISCOUNT,
+    ANALYTICS, CREATE_OPERATOR;
+}
