@@ -32,11 +32,5 @@ public class DefaultUsersCreator implements CommandLineRunner {
         } catch (AuthenticationException e) {
             //ignore
         }
-        serviceUserDto = new ServiceUserDto("Andrey", "Andrey", "Ivanov", "starshinaiko2017@gmail.com", "123123123");
-        try {
-            serviceAuthentication.registration(serviceUserDto);
-        } catch (AuthenticationException e) {
-            //ignore
-        }
     }
 }
