@@ -59,4 +59,7 @@
                 constraintName="fk54clakuh2mj7p7p7bq6l7vy1o"/>
     </changeSet>
 
+    <changeSet id="add-tag-home-work3" author="Andrei">
+        <tagDatabase tag="1.1.0-home-work3"/>
+    </changeSet>
 </databaseChangeLog>
