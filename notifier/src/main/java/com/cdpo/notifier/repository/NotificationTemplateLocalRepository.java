@@ -9,7 +9,7 @@ public class NotificationTemplateLocalRepository implements INotificationTemplat
     }
 
     @Override
-    public String getDiscountTemplate(Double discontInPercent, String firstName, String lastName) {
+    public String getDiscountTemplate(Double discountInPercent, String firstName, String lastName) {
         return null;
     }
 }

@@ -7,8 +7,4 @@ import lombok.Setter;
 @Setter
 public class NotificationDiscountDTO extends NotificationDTO {
     private Double discountInPercent;
-
-    public Double getDiscontInPercent() {
-        return discountInPercent;
-    }
 }

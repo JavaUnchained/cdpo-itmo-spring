@@ -32,7 +32,7 @@ public class MailSenderService implements ISenderService{
     @Override
     public Mono<Void> send(NotificationDiscountDTO notification) {
         String email = notification.getEmail();
-        String message = notificationTemplateRepository.getDiscountTemplate(notification.getDiscontInPercent(),notification.getFirstName(), notification.getLastName());
+        String message = notificationTemplateRepository.getDiscountTemplate(notification.getDiscountInPercent(),notification.getFirstName(), notification.getLastName());
         String subject = "Booking status changed.";
         javaMailSender.send(getSimpleMessage(message, subject, email));
         return Mono.empty();
