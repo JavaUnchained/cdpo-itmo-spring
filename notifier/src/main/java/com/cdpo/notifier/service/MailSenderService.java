@@ -31,7 +31,7 @@ public class MailSenderService implements ISenderService {
                         notification.getBookingState(),
                         notification.getFirstName(),
                         notification.getLastName()
-                ).flatMap(message -> getMimeMessage(
+                ).log().flatMap(message -> getMimeMessage(
                         message,
                         BOOKING_SUBJECT,
                         notification.getId(),
@@ -46,7 +46,7 @@ public class MailSenderService implements ISenderService {
                         notification.getDiscountInPercent(),
                         notification.getFirstName(),
                         notification.getLastName()
-                ).flatMap(message -> getMimeMessage(
+                ).log().flatMap(message -> getMimeMessage(
                         message,
                         DISCOUNT_SUBJ,
                         notification.getId(),

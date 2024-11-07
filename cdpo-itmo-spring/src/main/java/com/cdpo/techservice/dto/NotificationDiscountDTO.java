@@ -1,4 +1,4 @@
-package com.cdpo.notifier.dto;
+package com.cdpo.techservice.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
