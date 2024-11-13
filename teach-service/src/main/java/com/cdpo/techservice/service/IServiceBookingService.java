@@ -27,4 +27,6 @@ public interface IServiceBookingService {
     List<RevenueDTO> calculateRevenue(LocalDate from, LocalDate to);
 
     BookingResponseDTO updateBooking(long id, BookingDTO updateDTO);
+
+    List<BookingMetricRequestDTO> getCompletedBookings();
 }

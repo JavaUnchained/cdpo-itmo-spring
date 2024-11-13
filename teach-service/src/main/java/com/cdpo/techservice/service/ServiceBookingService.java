@@ -13,9 +13,10 @@ import com.cdpo.techservice.model.RoleType;
 import com.cdpo.techservice.model.ServiceUser;
 import com.cdpo.techservice.repository.IServiceBookingRepository;
 import com.cdpo.techservice.repository.IServiceUserRepository;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +26,6 @@ import java.util.stream.Stream;
 
 @Primary
 @Service
-@RequiredArgsConstructor
 public class ServiceBookingService implements IServiceBookingService {
     private static final String BOTH_CANNOT_BE_NULL = "From and To both cannot be null";
 
@@ -35,6 +35,20 @@ public class ServiceBookingService implements IServiceBookingService {
     private final BookingMapper bookingMapper;
     private final RevenueMapper revenueMapper;
     private final NotificationMapper notificationMapper;
+
+    public ServiceBookingService(@Autowired(required = false) INotificationClientService notificationClientService,
+                                 @Autowired IServiceBookingRepository bookingRepository,
+                                 @Autowired IServiceUserRepository userRepository,
+                                 @Autowired BookingMapper bookingMapper,
+                                 @Autowired RevenueMapper revenueMapper,
+                                 @Autowired NotificationMapper notificationMapper) {
+        this.notificationClientService = notificationClientService;
+        this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
+        this.bookingMapper = bookingMapper;
+        this.revenueMapper = revenueMapper;
+        this.notificationMapper = notificationMapper;
+    }
 
     @Override
     public long createBooking(BookingRequestDTO requestBooking, String username) {
@@ -162,6 +176,14 @@ public class ServiceBookingService implements IServiceBookingService {
             sendChangeStateNotification(booking);
         }
         return bookingMapper.toDto(merged);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingMetricRequestDTO> getCompletedBookings() {
+        List<Booking> bookings = bookingRepository.findByState(BookingState.DONE);
+        if(bookings.isEmpty()) return Collections.emptyList();
+        return bookings.stream().map(bookingMapper::toMetricDto).collect(Collectors.toList());
     }
 
     private void sendChangeStateNotification(Booking booking) {

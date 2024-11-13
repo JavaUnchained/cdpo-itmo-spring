@@ -8,6 +8,7 @@ import com.cdpo.techservice.model.Service;
 import com.cdpo.techservice.model.ServiceUser;
 import com.cdpo.techservice.repository.IServiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 public class BookingMapper {
     public static final String NOT_FOUND = "Services not found";
     private final IServiceRepository serviceRepository;
+    private final ServiceMapper serviceMapper;
 
     public Booking toEntity(BookingRequestDTO bookingDto, ServiceUser user) {
         List<Service> services = serviceRepository.findAllById(bookingDto.serviceIds());
@@ -49,6 +51,18 @@ public class BookingMapper {
                 BookingStateDTO.valueOf(booking.getState().name())
         );
     }
+
+    public BookingMetricRequestDTO toMetricDto(Booking booking) {
+        List<ServiceResponseDTO> services = booking.getServices()
+                .stream()
+                .map(service -> serviceMapper.toDTOWithDiscount(service, booking.getDiscountPercent()))
+                .toList();
+
+        return new BookingMetricRequestDTO(
+                booking.getId(), services, booking.getAppointmentTime(), BookingStateDTO.DONE, booking.getUser().getId()
+        );
+    }
+
 
     public Booking merge(Booking booking, BookingDTO updateDTO, ServiceUser user) {
         if (updateDTO.appointmentTime() != null) {

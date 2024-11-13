@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IServiceBookingRepository extends JpaRepository<Booking,Long> {
+
     List<Booking> findByState(BookingState state);
 
     List<Booking> findByAppointmentTime(LocalDateTime appointmentTime);
