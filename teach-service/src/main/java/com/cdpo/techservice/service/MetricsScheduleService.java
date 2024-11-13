@@ -18,8 +18,7 @@ public class MetricsScheduleService {
 
 
     @Async("metric-executor")
-    @Scheduled(fixedRate = 10, timeUnit = TimeUnit.SECONDS)
-//    @Scheduled(fixedRate = 24, timeUnit = TimeUnit.HOURS)
+    @Scheduled(fixedRate = 24, timeUnit = TimeUnit.HOURS)
     public void runBySchedule(){
         metricClient.saveCompletedBookings(serviceBookingService.getCompletedBookings());
     }
