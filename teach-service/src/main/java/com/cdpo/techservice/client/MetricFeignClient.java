@@ -11,7 +11,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import java.io.IOException;
@@ -23,7 +22,7 @@ import java.util.List;
 public interface MetricFeignClient extends IMetricClient {
     @Override
     @PostMapping
-    ResponseEntity<List<Long>> saveCompletedBookings(List<BookingMetricRequestDTO> completedBookings);
+    List<Long> saveCompletedBookings(List<BookingMetricRequestDTO> completedBookings);
 
     @Configuration
     class Config {

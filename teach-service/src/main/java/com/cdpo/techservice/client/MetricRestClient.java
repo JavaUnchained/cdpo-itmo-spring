@@ -22,7 +22,7 @@ public class MetricRestClient implements IMetricClient{
     }
 
     @Override
-    public ResponseEntity<List<Long>> saveCompletedBookings(List<BookingMetricRequestDTO> completedBookings) {
+    public List<Long> saveCompletedBookings(List<BookingMetricRequestDTO> completedBookings) {
         ResponseEntity<List<Long>> entity = metricClient.post()
                 .uri("/dwh/metric")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -33,7 +33,7 @@ public class MetricRestClient implements IMetricClient{
             sleep();
             return saveCompletedBookings(completedBookings);
         }
-        return entity;
+        return entity.getBody();
     }
 
     private static void sleep() {
@@ -46,6 +46,6 @@ public class MetricRestClient implements IMetricClient{
     }
 
     private static boolean isUnsuccessful(ResponseEntity<List<Long>> entity) {
-        return !entity.getStatusCode().is2xxSuccessful() || entity.getBody() == null || entity.getBody().isEmpty();
+        return !entity.getStatusCode().is2xxSuccessful();
     }
 }

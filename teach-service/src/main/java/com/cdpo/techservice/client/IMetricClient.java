@@ -1,10 +1,18 @@
 package com.cdpo.techservice.client;
 
 import com.cdpo.techservice.dto.BookingMetricRequestDTO;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 
+@Validated
 public interface IMetricClient {
-    ResponseEntity<List<Long>> saveCompletedBookings(List<BookingMetricRequestDTO> completedBookings);
+
+    @NotEmpty
+    @Retryable(retryFor = ConstraintViolationException.class)
+    List<Long> saveCompletedBookings(@Valid List<BookingMetricRequestDTO> completedBookings);
 }
